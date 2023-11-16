@@ -13,11 +13,12 @@ type Word struct {
 }
 
 type Dictionary struct {
-	filename string
-	words    []Word
-	addCh    chan Word
-	removeCh chan string
-	mu       sync.Mutex
+	filename   string
+	words      []Word
+	addCh      chan Word
+	removeCh   chan string
+	mu         sync.Mutex
+	responseCh chan struct{}
 }
 
 func (w Word) String() string {
@@ -27,10 +28,11 @@ func (w Word) String() string {
 
 func New(filename string) *Dictionary {
 	d := &Dictionary{
-		filename: filename,
-		words:    make([]Word, 0),
-		addCh:    make(chan Word),
-		removeCh: make(chan string),
+		filename:   filename,
+		words:      make([]Word, 0),
+		addCh:      make(chan Word),
+		removeCh:   make(chan string),
+		responseCh: make(chan struct{}),
 	}
 	go d.processChannels()
 	d.chargerFichier()
@@ -41,10 +43,12 @@ func (d *Dictionary) processChannels() {
 		select {
 		case word := <-d.addCh:
 			d.AddAsync(word.Word, word.Definition)
+			<-d.responseCh
 		case word := <-d.removeCh:
 			d.RemoveAsync(word)
+		case <-d.responseCh:
+			d.enregistrerFichier()
 		}
-		d.enregistrerFichier()
 	}
 }
 
@@ -54,6 +58,10 @@ func (d *Dictionary) AddAsync(word string, definition string) {
 
 	newWord := Word{Word: word, Definition: definition}
 	d.words = append(d.words, newWord)
+
+	go func() {
+		d.responseCh <- struct{}{}
+	}()
 }
 
 func (d *Dictionary) RemoveAsync(word string) {
