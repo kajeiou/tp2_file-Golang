@@ -16,6 +16,11 @@ type Dictionary struct {
 	words    []Word
 }
 
+func (w Word) String() string {
+
+	return w.Word + ": " + w.Definition
+}
+
 func New(filename string) *Dictionary {
 	d := &Dictionary{
 		filename: filename,
@@ -47,16 +52,31 @@ func (d *Dictionary) Get(word string) (Word, error) {
 	return Word{}, errors.New("Le mot " + word + " n'a pas été trouvé dans le dico")
 }
 
-func (d *Dictionary) Remove(word string) {
+func (d *Dictionary) Remove(word string) error {
+	var updatedWords []Word
 
+	for _, w := range d.words {
+		if w.Word != word {
+			updatedWords = append(updatedWords, w)
+		}
+	}
+
+	d.words = updatedWords
+
+	err := d.enregistrerFichier()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (d *Dictionary) List() ([]string, []Word) {
+func (d *Dictionary) List() []Word {
 	wordsList := make([]string, 0)
 	for _, w := range d.words {
 		wordsList = append(wordsList, w.Definition)
 	}
-	return wordsList, d.words
+	return d.words
 }
 
 func (d *Dictionary) chargerFichier() error {
@@ -73,8 +93,11 @@ func (d *Dictionary) chargerFichier() error {
 	}
 
 	for _, record := range records {
-		if len(record) == 1 {
-			word := Word{Definition: record[0]}
+		if len(record) == 2 {
+			word := Word{
+				Word:       record[0],
+				Definition: record[1],
+			}
 			d.words = append(d.words, word)
 		}
 	}

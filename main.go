@@ -92,13 +92,13 @@ func actionRemove(d *dictionary.Dictionary, reader *bufio.Reader) {
 }
 
 func actionList(d *dictionary.Dictionary) {
-	wordsList, _ := d.List()
+	wordsList := d.List()
 	if len(wordsList) == 0 {
 		fmt.Println("Aucun mot dans le dico.")
 	} else {
 		fmt.Println("Liste des mots du dico:")
 		for _, word := range wordsList {
-			fmt.Printf("%s\n", word)
+			fmt.Println(word.String())
 		}
 	}
 }
