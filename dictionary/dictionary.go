@@ -65,7 +65,17 @@ func (d *Dictionary) AddAsync(word string, definition string) {
 }
 
 func (d *Dictionary) RemoveAsync(word string) {
-	d.removeCh <- word
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	var updatedWords []Word
+	for _, w := range d.words {
+		if w.Word != word {
+			updatedWords = append(updatedWords, w)
+		}
+	}
+	d.words = updatedWords
+	d.responseCh <- struct{}{}
 }
 
 func (d *Dictionary) Get(word string) (Word, error) {
