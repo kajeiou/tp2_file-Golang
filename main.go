@@ -71,12 +71,21 @@ func actionDefine(d *dictionary.Dictionary, reader *bufio.Reader) {
 	word, _ := reader.ReadString('\n')
 	word = strings.TrimSpace(word)
 
+	_, err := d.Get(word)
+	if err != nil {
+		fmt.Printf("Le mot '%s' n'existe pas dans le dico.\n", word)
+		return
+	}
+
 	fmt.Print("Entrez la nouvelle définition : ")
 	newDefinition, _ := reader.ReadString('\n')
 	newDefinition = strings.TrimSpace(newDefinition)
 
-	d.Remove(word)
-
+	err = d.Remove(word)
+	if err != nil {
+		fmt.Printf("Erreur lors de la mise à jour de la définition pour le mot '%s': %v\n", word, err)
+		return
+	}
 	d.Add(word, newDefinition)
 
 	fmt.Printf("La définition pour le mot '%s' a été mise à jour.\n", word)
