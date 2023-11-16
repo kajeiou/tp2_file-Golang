@@ -32,11 +32,11 @@ func main() {
 		case "1":
 			actionList(myDictionary)
 		case "2":
-			actionAdd(myDictionary, reader)
+			actionAddAsync(myDictionary, reader)
 		case "3":
-			actionDefine(myDictionary, reader)
+			actionDefineAsync(myDictionary, reader)
 		case "4":
-			actionRemove(myDictionary, reader)
+			actionRemoveAsync(myDictionary, reader)
 		case "5":
 			fmt.Println("Au revoir !")
 			return
@@ -46,7 +46,7 @@ func main() {
 	}
 }
 
-func actionAdd(d *dictionary.Dictionary, reader *bufio.Reader) {
+func actionAddAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
 	fmt.Print("Entrez le nouveau mot : ")
 	word, _ := reader.ReadString('\n')
 	word = strings.TrimSpace(word)
@@ -61,12 +61,12 @@ func actionAdd(d *dictionary.Dictionary, reader *bufio.Reader) {
 	definition, _ := reader.ReadString('\n')
 	definition = strings.TrimSpace(definition)
 
-	d.Add(word, definition)
+	d.AddAsync(word, definition)
 
 	fmt.Printf("Le mot '%s' avec la définition '%s' a été ajouté.\n", word, definition)
 }
 
-func actionDefine(d *dictionary.Dictionary, reader *bufio.Reader) {
+func actionDefineAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
 	fmt.Print("Entrez le mot : ")
 	word, _ := reader.ReadString('\n')
 	word = strings.TrimSpace(word)
@@ -81,23 +81,18 @@ func actionDefine(d *dictionary.Dictionary, reader *bufio.Reader) {
 	newDefinition, _ := reader.ReadString('\n')
 	newDefinition = strings.TrimSpace(newDefinition)
 
-	err = d.Remove(word)
-	if err != nil {
-		fmt.Printf("Erreur lors de la mise à jour de la définition pour le mot '%s': %v\n", word, err)
-		return
-	}
-	d.Add(word, newDefinition)
+	d.RemoveAsync(word)
+	d.AddAsync(word, newDefinition)
 
 	fmt.Printf("La définition pour le mot '%s' a été mise à jour.\n", word)
 }
 
-func actionRemove(d *dictionary.Dictionary, reader *bufio.Reader) {
-
+func actionRemoveAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
 	fmt.Print("Écrivez le mot à supprimer : ")
 	word, _ := reader.ReadString('\n')
 	word = strings.TrimSpace(word)
 
-	d.Remove(word)
+	d.RemoveAsync(word)
 }
 
 func actionList(d *dictionary.Dictionary) {

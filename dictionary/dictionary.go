@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"errors"
 	"os"
+	"sync"
 )
 
 type Word struct {
@@ -14,6 +15,9 @@ type Word struct {
 type Dictionary struct {
 	filename string
 	words    []Word
+	addCh    chan Word
+	removeCh chan string
+	mu       sync.Mutex
 }
 
 func (w Word) String() string {
@@ -25,21 +29,35 @@ func New(filename string) *Dictionary {
 	d := &Dictionary{
 		filename: filename,
 		words:    make([]Word, 0),
+		addCh:    make(chan Word),
+		removeCh: make(chan string),
 	}
+	go d.processChannels()
 	d.chargerFichier()
 	return d
 }
-
-func (d *Dictionary) Add(word string, definition string) {
-	newWord := Word{
-		Word:       word,
-		Definition: definition,
+func (d *Dictionary) processChannels() {
+	for {
+		select {
+		case word := <-d.addCh:
+			d.AddAsync(word.Word, word.Definition)
+		case word := <-d.removeCh:
+			d.RemoveAsync(word)
+		}
+		d.enregistrerFichier()
 	}
+}
 
+func (d *Dictionary) AddAsync(word string, definition string) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	newWord := Word{Word: word, Definition: definition}
 	d.words = append(d.words, newWord)
+}
 
-	d.enregistrerFichier()
-
+func (d *Dictionary) RemoveAsync(word string) {
+	d.removeCh <- word
 }
 
 func (d *Dictionary) Get(word string) (Word, error) {
@@ -50,25 +68,6 @@ func (d *Dictionary) Get(word string) (Word, error) {
 	}
 
 	return Word{}, errors.New("Le mot " + word + " n'a pas été trouvé dans le dico")
-}
-
-func (d *Dictionary) Remove(word string) error {
-	var updatedWords []Word
-
-	for _, w := range d.words {
-		if w.Word != word {
-			updatedWords = append(updatedWords, w)
-		}
-	}
-
-	d.words = updatedWords
-
-	err := d.enregistrerFichier()
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (d *Dictionary) List() []Word {
@@ -106,6 +105,9 @@ func (d *Dictionary) chargerFichier() error {
 }
 
 func (d *Dictionary) enregistrerFichier() error {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
 	file, err := os.Create(d.filename)
 	if err != nil {
 		return err
