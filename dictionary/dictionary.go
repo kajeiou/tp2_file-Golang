@@ -6,6 +6,7 @@ import (
 )
 
 type Word struct {
+	Word       string
 	Definition string
 }
 
@@ -27,8 +28,9 @@ func (d *Dictionary) Add(word string, definition string) {
 
 }
 
-func (d *Dictionary) Get(word string) (*Word, bool) {
+func (d *Dictionary) Get(word string) (Word, error) {
 
+	return Word{}, nil
 }
 
 func (d *Dictionary) Remove(word string) {
@@ -36,11 +38,15 @@ func (d *Dictionary) Remove(word string) {
 }
 
 func (d *Dictionary) List() ([]string, []Word) {
-
+	wordsList := make([]string, 0)
+	for _, w := range d.words {
+		wordsList = append(wordsList, w.Definition)
+	}
+	return wordsList, d.words
 }
 
 func (d *Dictionary) chargerFichier() error {
-	file, err := os.OpenFile(d.filename, os.O_RDWR|os.O_CREATE, os.ModePerm)
+	file, err := os.Open(d.filename)
 	if err != nil {
 		return err
 	}

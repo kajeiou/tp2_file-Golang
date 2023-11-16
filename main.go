@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"tp1/dictionary"
+	"tp2/dictionary"
 )
 
 func main() {
