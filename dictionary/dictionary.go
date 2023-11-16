@@ -2,6 +2,7 @@ package dictionary
 
 import (
 	"encoding/csv"
+	"errors"
 	"os"
 )
 
@@ -25,12 +26,25 @@ func New(filename string) *Dictionary {
 }
 
 func (d *Dictionary) Add(word string, definition string) {
+	newWord := Word{
+		Word:       word,
+		Definition: definition,
+	}
+
+	d.words = append(d.words, newWord)
+
+	d.enregistrerFichier()
 
 }
 
 func (d *Dictionary) Get(word string) (Word, error) {
+	for _, w := range d.words {
+		if w.Word == word {
+			return w, nil
+		}
+	}
 
-	return Word{}, nil
+	return Word{}, errors.New("Le mot " + word + " n'a pas été trouvé dans le dico")
 }
 
 func (d *Dictionary) Remove(word string) {
@@ -79,7 +93,7 @@ func (d *Dictionary) enregistrerFichier() error {
 	defer writer.Flush()
 
 	for _, word := range d.words {
-		err := writer.Write([]string{word.Definition})
+		err := writer.Write([]string{word.Word, word.Definition})
 		if err != nil {
 			return err
 		}

@@ -51,8 +51,8 @@ func actionAdd(d *dictionary.Dictionary, reader *bufio.Reader) {
 	word, _ := reader.ReadString('\n')
 	word = strings.TrimSpace(word)
 
-	_, exists := d.Get(word)
-	if exists {
+	_, err := d.Get(word)
+	if err == nil {
 		fmt.Printf("Le mot '%s' existe déjà dans le dictionnaire.\n", word)
 		return
 	}
