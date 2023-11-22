@@ -3,15 +3,55 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
+	"net/http"
 	"os"
 	"strings"
 	"tp2/dictionary"
 )
 
 func main() {
+	mode := getModeFromArgs()
+
 	myDictionary := dictionary.New("dictionary.csv")
 	fmt.Println("Bienvenue dans le dico !")
 
+	if mode == "console" {
+		runConsoleMode(myDictionary)
+	} else if mode == "api" {
+		runAPIMode(myDictionary)
+	} else {
+		fmt.Println("Mode non reconnu. Choisissez le mode :")
+		fmt.Println("1. Console")
+		fmt.Println("2. API")
+
+		reader := bufio.NewReader(os.Stdin)
+		choice, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println("Erreur de lecture de l'entrée utilisateur:", err)
+			return
+		}
+		choice = strings.TrimSpace(choice)
+
+		switch choice {
+		case "1":
+			runConsoleMode(myDictionary)
+		case "2":
+			runAPIMode(myDictionary)
+		default:
+			fmt.Println("Choix invalide. Terminé.")
+		}
+	}
+}
+
+func getModeFromArgs() string {
+	if len(os.Args) < 2 {
+		return ""
+	}
+	return strings.ToLower(os.Args[1])
+}
+
+func runConsoleMode(d *dictionary.Dictionary) {
 	for {
 		fmt.Println("|| MENU Dico ||")
 		fmt.Println("Voir : 1")
@@ -30,13 +70,13 @@ func main() {
 
 		switch choix {
 		case "1":
-			actionList(myDictionary)
+			actionList(d)
 		case "2":
-			actionAddAsync(myDictionary, reader)
+			actionAddAsync(d, reader)
 		case "3":
-			actionDefineAsync(myDictionary, reader)
+			actionDefineAsync(d, reader)
 		case "4":
-			actionRemoveAsync(myDictionary, reader)
+			actionRemoveAsync(d, reader)
 		case "5":
 			fmt.Println("Au revoir !")
 			return
@@ -46,62 +86,18 @@ func main() {
 	}
 }
 
-func actionAddAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
-	fmt.Print("Entrez le nouveau mot : ")
-	word, _ := reader.ReadString('\n')
-	word = strings.TrimSpace(word)
+func runAPIMode(d *dictionary.Dictionary) {
+	http.HandleFunc("/", welcomeHandler)
+	http.HandleFunc("/api/words/add", apiAddWordHandler(d))
+	http.HandleFunc("/api/words/define/", apiDefineWordHandler(d))
+	http.HandleFunc("/api/words/remove/", apiRemoveWordHandler(d))
+	http.HandleFunc("/api/words/list", apiListWordsHandler(d))
 
-	_, err := d.Get(word)
-	if err == nil {
-		fmt.Printf("Le mot '%s' existe déjà dans le dictionnaire.\n", word)
-		return
-	}
-
-	fmt.Print("Entrez la nouvelle définition : ")
-	definition, _ := reader.ReadString('\n')
-	definition = strings.TrimSpace(definition)
-
-	d.AddAsync(word, definition)
-
-	fmt.Printf("Le mot '%s' avec la définition '%s' a été ajouté.\n", word, definition)
+	fmt.Println("Starting server on :8080...")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-func actionDefineAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
-	fmt.Print("Entrez le mot : ")
-	word, _ := reader.ReadString('\n')
-	word = strings.TrimSpace(word)
-
-	existingWord, err := d.Get(word)
-	if err != nil {
-		fmt.Printf("Le mot '%s' n'existe pas dans le dico.\n", word)
-		return
-	}
-
-	fmt.Print("Entrez la nouvelle définition : ")
-	newDefinition, _ := reader.ReadString('\n')
-	newDefinition = strings.TrimSpace(newDefinition)
-
-	d.EditAsync(existingWord.Word, newDefinition)
-
-	fmt.Printf("La définition pour le mot '%s' a été mise à jour.\n", word)
-}
-
-func actionRemoveAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
-	fmt.Print("Écrivez le mot à supprimer : ")
-	word, _ := reader.ReadString('\n')
-	word = strings.TrimSpace(word)
-
-	d.RemoveAsync(word)
-}
-
-func actionList(d *dictionary.Dictionary) {
-	wordsList := d.List()
-	if len(wordsList) == 0 {
-		fmt.Println("Aucun mot dans le dico.")
-	} else {
-		fmt.Println("Liste des mots du dico:")
-		for _, word := range wordsList {
-			fmt.Println(word.String())
-		}
-	}
+func welcomeHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Received request: %s %s", r.Method, r.URL.Path)
+	fmt.Fprintln(w, "Bienvenue dans le dico !")
 }
