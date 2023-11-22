@@ -9,6 +9,11 @@ import (
 	"tp2/dictionary"
 )
 
+func welcomeHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Received request: %s %s", r.Method, r.URL.Path)
+	fmt.Fprintln(w, "Bienvenue dans le dico !")
+}
+
 func apiAddWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {

@@ -97,8 +97,3 @@ func runAPIMode(d *dictionary.Dictionary) {
 	fmt.Println("Starting server on :8080...")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
-
-func welcomeHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Received request: %s %s", r.Method, r.URL.Path)
-	fmt.Fprintln(w, "Bienvenue dans le dico !")
-}
