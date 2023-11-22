@@ -16,13 +16,13 @@ type Dictionary struct {
 	filename   string
 	words      []Word
 	addCh      chan Word
+	editCh     chan Word
 	removeCh   chan string
 	mu         sync.Mutex
 	responseCh chan struct{}
 }
 
 func (w Word) String() string {
-
 	return w.Word + ": " + w.Definition
 }
 
@@ -31,6 +31,7 @@ func New(filename string) *Dictionary {
 		filename:   filename,
 		words:      make([]Word, 0),
 		addCh:      make(chan Word),
+		editCh:     make(chan Word),
 		removeCh:   make(chan string),
 		responseCh: make(chan struct{}),
 	}
@@ -38,14 +39,19 @@ func New(filename string) *Dictionary {
 	d.chargerFichier()
 	return d
 }
+
 func (d *Dictionary) processChannels() {
 	for {
 		select {
 		case word := <-d.addCh:
 			d.AddAsync(word.Word, word.Definition)
 			<-d.responseCh
+		case word := <-d.editCh:
+			d.EditAsync(word.Word, word.Definition)
+			<-d.responseCh
 		case word := <-d.removeCh:
 			d.RemoveAsync(word)
+			<-d.responseCh
 		case <-d.responseCh:
 			d.enregistrerFichier()
 		}
@@ -63,6 +69,7 @@ func (d *Dictionary) AddAsync(word string, definition string) {
 		d.responseCh <- struct{}{}
 	}()
 }
+
 func (d *Dictionary) EditAsync(word string, newDefinition string) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
