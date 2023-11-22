@@ -116,7 +116,7 @@ func apiListWordsHandler(d *dictionary.Dictionary) http.HandlerFunc {
 
 		wordsList := d.List()
 		if len(wordsList) == 0 {
-			log.Print("No words in the dictionary.")
+			log.Print("Aucun mot dans le dico.")
 			fmt.Fprintln(w, "Aucun mot dans le dico.")
 		} else {
 			w.Header().Set("Content-Type", "application/json")

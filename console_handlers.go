@@ -14,7 +14,7 @@ func actionAddAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
 
 	_, err := d.Get(word)
 	if err == nil {
-		fmt.Printf("Le mot '%s' existe déjà dans le dictionnaire.\n", word)
+		fmt.Printf("Le mot '%s' existe déjà dans le dico.\n", word)
 		return
 	}
 
