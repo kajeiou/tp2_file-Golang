@@ -95,6 +95,7 @@ func runAPIMode(d *dictionary.Dictionary) {
 	http.HandleFunc("/api/words/define/", api_mode.ApiDefineWordHandler(d))
 	http.HandleFunc("/api/words/remove/", api_mode.ApiRemoveWordHandler(d))
 	http.HandleFunc("/api/words/list", api_mode.ApiListWordsHandler(d))
+	http.HandleFunc("/api/login", api_mode.LoginHandler)
 
 	fmt.Println("Starting server on :8080...")
 	log.Fatal(http.ListenAndServe(":8080", nil))
