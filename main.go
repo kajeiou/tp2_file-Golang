@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"tp2/api_mode"
+	"tp2/console_mode"
 	"tp2/dictionary"
 )
 
@@ -71,13 +73,13 @@ func runConsoleMode(d *dictionary.Dictionary) {
 
 		switch choix {
 		case "1":
-			actionList(d)
+			console_mode.ActionList(d)
 		case "2":
-			actionAddAsync(d, reader)
+			console_mode.ActionAddAsync(d, reader)
 		case "3":
-			actionDefineAsync(d, reader)
+			console_mode.ActionDefineAsync(d, reader)
 		case "4":
-			actionRemoveAsync(d, reader)
+			console_mode.ActionRemoveAsync(d, reader)
 		case "5":
 			fmt.Println("Au revoir !")
 			return
@@ -88,11 +90,11 @@ func runConsoleMode(d *dictionary.Dictionary) {
 }
 
 func runAPIMode(d *dictionary.Dictionary) {
-	http.HandleFunc("/", welcomeHandler)
-	http.HandleFunc("/api/words/add", apiAddWordHandler(d))
-	http.HandleFunc("/api/words/define/", apiDefineWordHandler(d))
-	http.HandleFunc("/api/words/remove/", apiRemoveWordHandler(d))
-	http.HandleFunc("/api/words/list", apiListWordsHandler(d))
+	http.HandleFunc("/", api_mode.WelcomeHandler)
+	http.HandleFunc("/api/words/add", api_mode.ApiAddWordHandler(d))
+	http.HandleFunc("/api/words/define/", api_mode.ApiDefineWordHandler(d))
+	http.HandleFunc("/api/words/remove/", api_mode.ApiRemoveWordHandler(d))
+	http.HandleFunc("/api/words/list", api_mode.ApiListWordsHandler(d))
 
 	fmt.Println("Starting server on :8080...")
 	log.Fatal(http.ListenAndServe(":8080", nil))

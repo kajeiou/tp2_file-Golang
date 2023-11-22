@@ -1,4 +1,4 @@
-package main
+package console_mode
 
 import (
 	"bufio"
@@ -7,7 +7,7 @@ import (
 	"tp2/dictionary"
 )
 
-func actionAddAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
+func ActionAddAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
 	fmt.Print("Entrez le nouveau mot : ")
 	word, _ := reader.ReadString('\n')
 	word = strings.TrimSpace(word)
@@ -27,7 +27,7 @@ func actionAddAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
 	fmt.Printf("Le mot '%s' avec la définition '%s' a été ajouté.\n", word, definition)
 }
 
-func actionDefineAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
+func ActionDefineAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
 	fmt.Print("Entrez le mot : ")
 	word, _ := reader.ReadString('\n')
 	word = strings.TrimSpace(word)
@@ -47,7 +47,7 @@ func actionDefineAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
 	fmt.Printf("La définition pour le mot '%s' a été mise à jour.\n", word)
 }
 
-func actionRemoveAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
+func ActionRemoveAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
 	fmt.Print("Écrivez le mot à supprimer : ")
 	word, _ := reader.ReadString('\n')
 	word = strings.TrimSpace(word)
@@ -55,7 +55,7 @@ func actionRemoveAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
 	d.RemoveAsync(word)
 }
 
-func actionList(d *dictionary.Dictionary) {
+func ActionList(d *dictionary.Dictionary) {
 	wordsList := d.List()
 	if len(wordsList) == 0 {
 		fmt.Println("Aucun mot dans le dico.")

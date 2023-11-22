@@ -1,4 +1,4 @@
-package main
+package api_mode
 
 import (
 	"encoding/json"
@@ -9,12 +9,12 @@ import (
 	"tp2/dictionary"
 )
 
-func welcomeHandler(w http.ResponseWriter, r *http.Request) {
+func WelcomeHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Received request: %s %s", r.Method, r.URL.Path)
 	fmt.Fprintln(w, "Bienvenue dans le dico !")
 }
 
-func apiAddWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
+func ApiAddWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			log.Printf("Bad request method: %s, expected POST. Route: %s", r.Method, r.URL.Path)
@@ -44,7 +44,7 @@ func apiAddWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 	}
 }
 
-func apiDefineWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
+func ApiDefineWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPut {
 			log.Printf("Bad request method: %s, expected PUT. Route: %s", r.Method, r.URL.Path)
@@ -83,7 +83,7 @@ func apiDefineWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 	}
 }
 
-func apiRemoveWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
+func ApiRemoveWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		if r.Method != http.MethodDelete {
@@ -110,7 +110,7 @@ func apiRemoveWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 	}
 }
 
-func apiListWordsHandler(d *dictionary.Dictionary) http.HandlerFunc {
+func ApiListWordsHandler(d *dictionary.Dictionary) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			log.Printf("Bad request method: %s, expected GET. Route: %s", r.Method, r.URL.Path)
