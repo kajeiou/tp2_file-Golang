@@ -16,11 +16,12 @@ func main() {
 	myDictionary := dictionary.New("dictionary.csv")
 	fmt.Println("Bienvenue dans le dico !")
 
-	if mode == "console" {
+	switch mode {
+	case "console", "1":
 		runConsoleMode(myDictionary)
-	} else if mode == "api" {
+	case "api", "2":
 		runAPIMode(myDictionary)
-	} else {
+	default:
 		fmt.Println("Mode non reconnu. Choisissez le mode :")
 		fmt.Println("1. Console")
 		fmt.Println("2. API")
