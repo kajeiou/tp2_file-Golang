@@ -33,8 +33,8 @@ func apiAddWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 
 		_, err = d.Get(word.Word)
 		if err == nil {
-			log.Printf("Conflict: Le mot '%s' existe déjà dans le dictionnaire. Route: %s", word.Word, r.URL.Path)
-			http.Error(w, fmt.Sprintf("Le mot '%s' existe déjà dans le dictionnaire.", word.Word), http.StatusConflict)
+			log.Printf("Conflict: Le mot '%s' existe déjà dans le dico. Route: %s", word.Word, r.URL.Path)
+			http.Error(w, fmt.Sprintf("Le mot '%s' existe déjà dans le dico.", word.Word), http.StatusConflict)
 			return
 		}
 
