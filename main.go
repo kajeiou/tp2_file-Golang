@@ -71,7 +71,7 @@ func actionDefineAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
 	word, _ := reader.ReadString('\n')
 	word = strings.TrimSpace(word)
 
-	_, err := d.Get(word)
+	existingWord, err := d.Get(word)
 	if err != nil {
 		fmt.Printf("Le mot '%s' n'existe pas dans le dico.\n", word)
 		return
@@ -81,8 +81,7 @@ func actionDefineAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
 	newDefinition, _ := reader.ReadString('\n')
 	newDefinition = strings.TrimSpace(newDefinition)
 
-	d.RemoveAsync(word)
-	d.AddAsync(word, newDefinition)
+	d.EditAsync(existingWord.Word, newDefinition)
 
 	fmt.Printf("La définition pour le mot '%s' a été mise à jour.\n", word)
 }

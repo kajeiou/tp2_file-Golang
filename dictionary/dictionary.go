@@ -63,6 +63,21 @@ func (d *Dictionary) AddAsync(word string, definition string) {
 		d.responseCh <- struct{}{}
 	}()
 }
+func (d *Dictionary) EditAsync(word string, newDefinition string) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	for i, w := range d.words {
+		if w.Word == word {
+			d.words[i].Definition = newDefinition
+			break
+		}
+	}
+
+	go func() {
+		d.responseCh <- struct{}{}
+	}()
+}
 
 func (d *Dictionary) RemoveAsync(word string) {
 	d.mu.Lock()
