@@ -20,3 +20,12 @@ DICO: 2024/01/11 10:17:30 logger.go:30: [LoginHandler] Mauvais contenu de requê
 DICO: 2024/01/11 10:17:30 logger.go:30: [LoginHandler] Mauvais contenu de requête: POST, username et password attendu. Route: /api/login, username : , password : 
 DICO: 2024/01/11 10:17:31 logger.go:30: [LoginHandler] Mauvais contenu de requête: POST, username et password attendu. Route: /api/login, username : , password : 
 DICO: 2024/01/11 10:26:04 logger.go:30: [LoginHandler] Nom d'utilisateur ou mot de passe incorrect pour l'utilisateur: utilisateur
+DICO: 2024/01/11 10:55:33 logger.go:30: [ApiAddWordHandler] Error decoding request body: EOF. Route: /api/words/add
+DICO: 2024/01/11 10:59:45 logger.go:30: [ApiAddWordHandler] Error decoding request body: EOF. Route: /api/words/add
+DICO: 2024/01/11 11:01:01 logger.go:30: [ApiAddWordHandler] Clés manquantes dans le corps de la requête. Route: /api/words/add
+DICO: 2024/01/11 11:01:49 logger.go:30: [WelcomeHandler] Requête reçue : GET /
+DICO: 2024/01/11 11:02:10 logger.go:30: [DictionnaryHandler] Requête non autorisé : POST /api/words/add. Le jeton d'authentification est invalide.
+DICO: 2024/01/11 11:02:13 logger.go:30: [ApiAddWordHandler] Conflict: Le mot 'symfony' existe déjà dans le dico. Route: /api/words/add
+DICO: 2024/01/11 11:02:14 logger.go:30: [ApiAddWordHandler] Conflict: Le mot 'symfony' existe déjà dans le dico. Route: /api/words/add
+DICO: 2024/01/11 11:02:15 logger.go:30: [ApiAddWordHandler] Conflict: Le mot 'symfony' existe déjà dans le dico. Route: /api/words/add
+DICO: 2024/01/11 11:03:06 logger.go:30: [WelcomeHandler] Requête reçue : POST /api/

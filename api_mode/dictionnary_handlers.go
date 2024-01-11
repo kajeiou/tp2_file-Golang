@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"tp2/dictionary"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 func WelcomeHandler(w http.ResponseWriter, r *http.Request) {
@@ -14,8 +17,54 @@ func WelcomeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Bienvenue dans le dico !")
 }
 
+func authenticateRequest(w http.ResponseWriter, r *http.Request) bool {
+	token := r.Header.Get("Authorization")
+	if token == "" {
+		w.WriteHeader(http.StatusUnauthorized)
+		LogToFile("DictionnaryHandler", fmt.Sprintf("Requête non autorisé : %s %s. Le jeton d'authentification est requis.", r.Method, r.URL.Path))
+		fmt.Fprint(w, "Accès non autorisé. Le jeton d'authentification est requis.")
+		return false
+	}
+
+	if !isValidToken(token) {
+		w.WriteHeader(http.StatusUnauthorized)
+		LogToFile("DictionnaryHandler", fmt.Sprintf("Requête non autorisé : %s %s. Le jeton d'authentification est invalide.", r.Method, r.URL.Path))
+		fmt.Fprint(w, "Accès non autorisé. Jeton d'authentification invalide.")
+		return false
+	}
+
+	return true
+}
+
+func isValidToken(tokenString string) bool {
+	secretKey := []byte(os.Getenv("SECRET_KEY"))
+	if secretKey == nil {
+		log.Println("La variable d'environnement SECRET_KEY n'est pas définie.")
+		return false
+	}
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Méthode de signature invalide: %v", token.Header["alg"])
+		}
+		return secretKey, nil
+	})
+
+	if err != nil {
+		//log.Printf("Erreur lors de la validation du jeton: %v", err)
+		return false
+	}
+
+	return token.Valid
+}
+
 func ApiAddWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		if !authenticateRequest(w, r) {
+			return
+		}
+
 		if r.Method != http.MethodPost {
 			logMessage := fmt.Sprintf("Mauvaise méthode de requête : %s, attendue POST %s", r.Method, r.URL.Path)
 			LogToFile("ApiAddWordHandler", logMessage)
@@ -56,6 +105,10 @@ func ApiAddWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 
 func ApiDefineWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		if !authenticateRequest(w, r) {
+			return
+		}
 		if r.Method != http.MethodPut {
 			log.Printf("Mauvaise méthode de requête : %s, PUT attendu. Route: %s", r.Method, r.URL.Path)
 			w.WriteHeader(http.StatusBadRequest)
@@ -96,6 +149,10 @@ func ApiDefineWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 func ApiRemoveWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
+		if !authenticateRequest(w, r) {
+			return
+		}
+
 		if r.Method != http.MethodDelete {
 			log.Printf("Mauvaise méthode de requête: %s, Delete attendu. Route: %s", r.Method, r.URL.Path)
 			w.WriteHeader(http.StatusBadRequest)
@@ -122,6 +179,11 @@ func ApiRemoveWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 
 func ApiListWordsHandler(d *dictionary.Dictionary) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		if !authenticateRequest(w, r) {
+			return
+		}
+
 		if r.Method != http.MethodGet {
 			log.Printf("Mauvaise méthode de requête :%s, GET attendu. Route: %s", r.Method, r.URL.Path)
 			w.WriteHeader(http.StatusBadRequest)
