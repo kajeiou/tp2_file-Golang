@@ -63,6 +63,15 @@ func (d *Dictionary) processChannels() {
 // AddAsync ajoute de manière asynchrone un nouveau mot.
 func (d *Dictionary) AddAsync(word string, definition string) {
 
+	// Check if the word already exists in the dictionary
+	if _, err := d.Get(word); err == nil {
+		// Word already exists, signal the end of the operation and return
+		go func() {
+			d.responseCh <- struct{}{} // Signale la fin de l'opération
+		}()
+		return
+	}
+
 	d.mu.Lock()
 	// Verrouille le mutex pour assurer un accès exclusif aux données du dico.
 	//  Si un autre processus ou une autre goroutine tente d'appeler AddAsync ou toute autre fonction qui modifie les données partagées,
@@ -80,6 +89,12 @@ func (d *Dictionary) AddAsync(word string, definition string) {
 		d.responseCh <- struct{}{} // Signale la fin de l'opération
 	}()
 }
+
+// GetResponseChannel renvoie le canal de réponse du dictionnaire.
+func (d *Dictionary) ResponseChannel() <-chan struct{} {
+	return d.responseCh
+}
+
 func (d *Dictionary) EditAsync(word string, newDefinition string) {
 
 	d.mu.Lock()
