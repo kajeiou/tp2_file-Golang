@@ -32,3 +32,7 @@ DICO: 2024/01/11 11:03:06 logger.go:30: [WelcomeHandler] Requête reçue : POST 
 DICO: 2024/01/11 11:19:28 logger.go:30: [WelcomeHandler] Requête reçue : POST /api/
 DICO: 2024/01/11 11:19:52 logger.go:30: [ApiAddWordHandler] Conflict: Le mot 'symfony' existe déjà dans le dico. Route: /api/words/add
 DICO: 2024/01/11 11:54:25 logger.go:31: [runAPIMode] Server started on :8080
+DICO: 2024/01/11 12:02:37 logger.go:31: [runAPIMode] Server started on :8080
+DICO: 2024/01/11 12:02:48 logger.go:31: [/api/login] Requête reçue : POST /api/login
+DICO: 2024/01/11 12:02:52 logger.go:31: [/api/words/remove/ang] Requête reçue : DELETE /api/words/remove/ang
+DICO: 2024/01/11 12:03:00 logger.go:31: [/api/login] Requête reçue : POST /api/login

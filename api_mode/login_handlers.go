@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/joho/godotenv"
 )
 
@@ -56,23 +54,4 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 func isValidUser(username, password string) bool {
 	return username == "nabil" && password == "10"
-}
-
-func generateToken(username string) (string, error) {
-	secretKey := []byte(os.Getenv("SECRET_KEY"))
-	if secretKey == nil {
-		log.Fatal("La variable d'environnement SECRET_KEY n'est pas définie.")
-	}
-
-	token := jwt.New(jwt.SigningMethodHS256)
-
-	claims := token.Claims.(jwt.MapClaims)
-	claims["username"] = username
-
-	tokenString, err := token.SignedString(secretKey)
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, nil
 }

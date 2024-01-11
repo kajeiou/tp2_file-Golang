@@ -3,53 +3,13 @@ package api_mode
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
-	"os"
 	"strings"
 	"tp2/dictionary"
-
-	"github.com/dgrijalva/jwt-go"
 )
 
 func WelcomeHandler(w http.ResponseWriter, r *http.Request) {
 	LogAndRespond(w, r, "Bienvenue dans le dico !", http.StatusOK)
-}
-
-func authenticateRequest(w http.ResponseWriter, r *http.Request) bool {
-	token := r.Header.Get("Authorization")
-	if token == "" {
-		LogAndRespond(w, r, "Accès non autorisé. Le jeton d'authentification est requis.", http.StatusUnauthorized)
-		return false
-	}
-
-	if !isValidToken(token) {
-		LogAndRespond(w, r, "Accès non autorisé. Jeton d'authentification invalide.", http.StatusUnauthorized)
-		return false
-	}
-
-	return true
-}
-
-func isValidToken(tokenString string) bool {
-	secretKey := []byte(os.Getenv("SECRET_KEY"))
-	if secretKey == nil {
-		log.Println("La variable d'environnement SECRET_KEY n'est pas définie.")
-		return false
-	}
-
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Méthode de signature invalide: %v", token.Header["alg"])
-		}
-		return secretKey, nil
-	})
-
-	if err != nil {
-		return false
-	}
-
-	return token.Valid
 }
 
 func ApiAddWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
