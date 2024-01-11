@@ -29,3 +29,6 @@ DICO: 2024/01/11 11:02:13 logger.go:30: [ApiAddWordHandler] Conflict: Le mot 'sy
 DICO: 2024/01/11 11:02:14 logger.go:30: [ApiAddWordHandler] Conflict: Le mot 'symfony' existe déjà dans le dico. Route: /api/words/add
 DICO: 2024/01/11 11:02:15 logger.go:30: [ApiAddWordHandler] Conflict: Le mot 'symfony' existe déjà dans le dico. Route: /api/words/add
 DICO: 2024/01/11 11:03:06 logger.go:30: [WelcomeHandler] Requête reçue : POST /api/
+DICO: 2024/01/11 11:19:28 logger.go:30: [WelcomeHandler] Requête reçue : POST /api/
+DICO: 2024/01/11 11:19:52 logger.go:30: [ApiAddWordHandler] Conflict: Le mot 'symfony' existe déjà dans le dico. Route: /api/words/add
+DICO: 2024/01/11 11:54:25 logger.go:31: [runAPIMode] Server started on :8080

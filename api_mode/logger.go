@@ -3,6 +3,7 @@ package api_mode
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"time"
 )
@@ -28,4 +29,10 @@ func init() {
 func LogToFile(context, message string) {
 	logMessage := fmt.Sprintf("[%s] %s", context, message)
 	logger.Println(logMessage)
+}
+
+func LogAndRespond(w http.ResponseWriter, r *http.Request, message string, status int) {
+	LogToFile(r.URL.Path, fmt.Sprintf("Requête reçue : %s %s", r.Method, r.URL.Path))
+	w.WriteHeader(status)
+	fmt.Fprintln(w, message)
 }

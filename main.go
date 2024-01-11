@@ -97,6 +97,12 @@ func runAPIMode(d *dictionary.Dictionary) {
 	http.HandleFunc("/api/words/list", api_mode.ApiListWordsHandler(d))
 	http.HandleFunc("/api/login", api_mode.LoginHandler)
 
-	fmt.Println("Starting server on :8080...")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	port := os.Getenv("SERVER_PORT")
+	if port == "" {
+		port = ":8080"
+	}
+
+	fmt.Println("Starting server on", port)
+	api_mode.LogToFile("runAPIMode", fmt.Sprintf("Server started on %s", port))
+	log.Fatal(http.ListenAndServe(port, nil))
 }

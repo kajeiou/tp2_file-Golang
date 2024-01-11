@@ -105,7 +105,7 @@ func (d *Dictionary) EditAsync(word string, newDefinition string) {
 }
 
 // RemoveAsync supprime de manière asynchrone un mot
-func (d *Dictionary) RemoveAsync(word string) {
+func (d *Dictionary) RemoveAsync(word string) bool {
 
 	d.mu.Lock()
 	// Verrouille le mutex pour assurer un accès exclusif aux données du dico.
@@ -118,13 +118,21 @@ func (d *Dictionary) RemoveAsync(word string) {
 	// Si le mutex n'était pas déverrouillé en cas de panique, cela pourrait entraîner un verrouillage permanent du mutex, rendant l'ensemble du programme inutilisable.
 
 	var updatedWords []Word
+	found := false
 	for _, w := range d.words {
 		if w.Word != word {
 			updatedWords = append(updatedWords, w)
+		} else {
+			found = true
 		}
 	}
-	d.words = updatedWords
-	d.responseCh <- struct{}{}
+
+	if found {
+		d.words = updatedWords
+		d.responseCh <- struct{}{}
+	}
+
+	return found
 }
 
 // Get retourne un mot du dico en fonction du mot fourni.

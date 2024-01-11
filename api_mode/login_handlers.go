@@ -20,9 +20,7 @@ func init() {
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		LogToFile("LoginHandler", fmt.Sprintf("Mauvaise méthode de requête: %s, POST attendu. Route: %s", r.Method, r.URL.Path))
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "La méthode "+r.Method+" n'est pas autorisée pour cette route. Utilisez POST.")
+		LogAndRespond(w, r, fmt.Sprintf("Mauvaise méthode de requête: %s, POST attendu. Route: %s", r.Method, r.URL.Path), http.StatusBadRequest)
 		return
 	}
 
@@ -30,8 +28,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&requestBody)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "Erreur lors de la lecture du corps de la requête.")
+		LogAndRespond(w, r, "Erreur lors de la lecture du corps de la requête.", http.StatusBadRequest)
 		return
 	}
 
@@ -39,28 +36,22 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	password, passwordExists := requestBody["password"]
 
 	if !usernameExists || !passwordExists {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "Nom d'utilisateur et mot de passe requis.")
+		LogAndRespond(w, r, "Nom d'utilisateur et mot de passe requis.", http.StatusBadRequest)
 		return
 	}
 
 	if !isValidUser(username, password) {
-		LogToFile("LoginHandler", fmt.Sprintf("Nom d'utilisateur ou mot de passe incorrect pour l'utilisateur: %s", username))
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Nom d'utilisateur ou mot de passe incorrect.")
+		LogAndRespond(w, r, fmt.Sprintf("Nom d'utilisateur ou mot de passe incorrect pour l'utilisateur: %s", username), http.StatusUnauthorized)
 		return
 	}
 
 	token, err := generateToken(username)
 	if err != nil {
-		LogToFile("LoginHandler", fmt.Sprintf("Erreur lors de la génération du jeton d'authentification pour l'utilisateur: %s", username))
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Erreur lors de la génération du jeton d'authentification.")
+		LogAndRespond(w, r, fmt.Sprintf("Erreur lors de la génération du jeton d'authentification pour l'utilisateur: %s", username), http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, token)
+	LogAndRespond(w, r, token, http.StatusOK)
 }
 
 func isValidUser(username, password string) bool {
