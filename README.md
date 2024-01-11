@@ -12,3 +12,9 @@ go run main.go [1 ou 2]
 Choisissez un mode :
 1. Console
 2. API
+
+/api/words/add
+/api/words/define/
+/api/words/remove/
+/api/words/list
+/api/login

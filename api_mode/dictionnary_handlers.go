@@ -144,6 +144,8 @@ func ApiListWordsHandler(d *dictionary.Dictionary) http.HandlerFunc {
 		if len(wordsList) == 0 {
 			LogAndRespond(w, r, "Aucun mot dans le dico.", http.StatusOK)
 		} else {
+			logMessage := fmt.Sprintf("Requête : %s. Route: %s", r.Method, r.URL.Path)
+			LogToFile("ApiListWordsHandler", logMessage)
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(wordsList)
 		}

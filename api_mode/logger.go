@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -15,7 +16,11 @@ var (
 
 func init() {
 	currentTime := time.Now()
-	logFileName := fmt.Sprintf("app_%s.log", currentTime.Format("2006-01-02"))
+	logFileName := fmt.Sprintf("logs/app_%s.log", currentTime.Format("2006-01-02"))
+	logsDir := filepath.Dir(logFileName)
+	if err := os.MkdirAll(logsDir, os.ModePerm); err != nil {
+		log.Fatal("Impossible de créer le dossier logs:", err)
+	}
 
 	var err error
 	logFile, err = os.OpenFile(logFileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
