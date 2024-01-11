@@ -1,0 +1,22 @@
+DICO: 2024/01/11 09:59:36 logger.go:30: [WelcomeHandler] Requête reçue : GET /
+DICO: 2024/01/11 10:00:23 logger.go:30: [WelcomeHandler] Requête reçue : POST /
+DICO: 2024/01/11 10:00:28 logger.go:30: [WelcomeHandler] Requête reçue : POST /
+DICO: 2024/01/11 10:00:29 logger.go:30: [WelcomeHandler] Requête reçue : POST /
+DICO: 2024/01/11 10:00:29 logger.go:30: [WelcomeHandler] Requête reçue : POST /
+DICO: 2024/01/11 10:00:29 logger.go:30: [WelcomeHandler] Requête reçue : POST /
+DICO: 2024/01/11 10:00:29 logger.go:30: [WelcomeHandler] Requête reçue : POST /
+DICO: 2024/01/11 10:00:29 logger.go:30: [WelcomeHandler] Requête reçue : POST /
+DICO: 2024/01/11 10:01:48 logger.go:30: [WelcomeHandler] Requête reçue : POST /login
+DICO: 2024/01/11 10:01:52 logger.go:30: [WelcomeHandler] Requête reçue : POST /login
+DICO: 2024/01/11 10:01:53 logger.go:30: [WelcomeHandler] Requête reçue : POST /login
+DICO: 2024/01/11 10:01:53 logger.go:30: [WelcomeHandler] Requête reçue : POST /login
+DICO: 2024/01/11 10:01:53 logger.go:30: [WelcomeHandler] Requête reçue : POST /login
+DICO: 2024/01/11 10:01:53 logger.go:30: [WelcomeHandler] Requête reçue : POST /login
+DICO: 2024/01/11 10:01:53 logger.go:30: [WelcomeHandler] Requête reçue : POST /login
+DICO: 2024/01/11 10:02:17 logger.go:30: [LoginHandler] Mauvaise méthode de requête: GET, POST attendu. Route: /api/login
+DICO: 2024/01/11 10:12:59 logger.go:30: [LoginHandler] Mauvaise méthode de requête: GET, POST attendu. Route: /api/login
+DICO: 2024/01/11 10:17:27 logger.go:30: [LoginHandler] Mauvais contenu de requête: POST, username et password attendu. Route: /api/login, username : , password : 
+DICO: 2024/01/11 10:17:30 logger.go:30: [LoginHandler] Mauvais contenu de requête: POST, username et password attendu. Route: /api/login, username : , password : 
+DICO: 2024/01/11 10:17:30 logger.go:30: [LoginHandler] Mauvais contenu de requête: POST, username et password attendu. Route: /api/login, username : , password : 
+DICO: 2024/01/11 10:17:31 logger.go:30: [LoginHandler] Mauvais contenu de requête: POST, username et password attendu. Route: /api/login, username : , password : 
+DICO: 2024/01/11 10:26:04 logger.go:30: [LoginHandler] Nom d'utilisateur ou mot de passe incorrect pour l'utilisateur: utilisateur

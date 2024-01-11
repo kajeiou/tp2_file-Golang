@@ -10,15 +10,15 @@ import (
 )
 
 func WelcomeHandler(w http.ResponseWriter, r *http.Request) {
-	//log.Printf("Received request: %s %s", r.Method, r.URL.Path)
-	LogToFile(fmt.Sprintf("Received request: %s %s", r.Method, r.URL.Path))
+	LogToFile("WelcomeHandler", fmt.Sprintf("Requête reçue : %s %s", r.Method, r.URL.Path))
 	fmt.Fprintln(w, "Bienvenue dans le dico !")
 }
 
 func ApiAddWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
-			log.Printf("Bad request method: %s, expected POST. Route: %s", r.Method, r.URL.Path)
+			logMessage := fmt.Sprintf("Mauvaise méthode de requête : %s, attendue POST %s", r.Method, r.URL.Path)
+			LogToFile("ApiAddWordHandler", logMessage)
 			w.WriteHeader(http.StatusBadRequest)
 			fmt.Fprint(w, "La méthode "+r.Method+" n'est pas autorisée pour cette route. Utilisez POST.")
 			return
@@ -27,14 +27,23 @@ func ApiAddWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 		var word dictionary.Word
 		err := json.NewDecoder(r.Body).Decode(&word)
 		if err != nil {
-			log.Printf("Error decoding request body: %v. Route: %s", err, r.URL.Path)
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			logMessage := fmt.Sprintf("Error decoding request body: %v. Route: %s", err, r.URL.Path)
+			LogToFile("ApiAddWordHandler", logMessage)
+			http.Error(w, "Corps de la demande non valide", http.StatusBadRequest)
+			return
+		}
+
+		if word.Word == "" || word.Definition == "" {
+			logMessage := fmt.Sprintf("Clés manquantes dans le corps de la requête. Route: %s", r.URL.Path)
+			LogToFile("ApiAddWordHandler", logMessage)
+			http.Error(w, "Le corps de la requête doit contenir les clés 'Word' et 'Definition'.", http.StatusBadRequest)
 			return
 		}
 
 		_, err = d.Get(word.Word)
 		if err == nil {
-			log.Printf("Conflict: Le mot '%s' existe déjà dans le dico. Route: %s", word.Word, r.URL.Path)
+			logMessage := fmt.Sprintf("Conflict: Le mot '%s' existe déjà dans le dico. Route: %s", word.Word, r.URL.Path)
+			LogToFile("ApiAddWordHandler", logMessage)
 			http.Error(w, fmt.Sprintf("Le mot '%s' existe déjà dans le dico.", word.Word), http.StatusConflict)
 			return
 		}
@@ -48,7 +57,7 @@ func ApiAddWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 func ApiDefineWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPut {
-			log.Printf("Bad request method: %s, expected PUT. Route: %s", r.Method, r.URL.Path)
+			log.Printf("Mauvaise méthode de requête : %s, PUT attendu. Route: %s", r.Method, r.URL.Path)
 			w.WriteHeader(http.StatusBadRequest)
 			fmt.Fprint(w, "La méthode "+r.Method+" n'est pas autorisée pour cette route. Utilisez PUT.")
 			return
@@ -72,8 +81,8 @@ func ApiDefineWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 		var newDefinition string
 		err = json.NewDecoder(r.Body).Decode(&newDefinition)
 		if err != nil {
-			log.Printf("Error decoding request body: %v. Route: %s", err, r.URL.Path)
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			log.Printf("Erreur de décodage du corps de la requête : %v. Route: %s", err, r.URL.Path)
+			http.Error(w, "Corps de la demande non valide", http.StatusBadRequest)
 			return
 		}
 
@@ -88,7 +97,7 @@ func ApiRemoveWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		if r.Method != http.MethodDelete {
-			log.Printf("Bad request method: %s, expected Delete. Route: %s", r.Method, r.URL.Path)
+			log.Printf("Mauvaise méthode de requête: %s, Delete attendu. Route: %s", r.Method, r.URL.Path)
 			w.WriteHeader(http.StatusBadRequest)
 			fmt.Fprint(w, "La méthode "+r.Method+" n'est pas autorisée pour cette route. Utilisez Delete.")
 			return
@@ -97,13 +106,13 @@ func ApiRemoveWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 		word := extractWordFromURL(r.URL.Path)
 
 		if word == "" {
-			log.Print("Bad request: Veuillez saisir un mot dans l'URL.")
+			log.Print("Mauvaise demande: Veuillez saisir un mot dans l'URL.")
 			w.WriteHeader(http.StatusBadRequest)
 			fmt.Fprint(w, "Veuillez saisir un mot dans l'URL.")
 			return
 		}
 
-		log.Printf("Removing word: %s", word)
+		log.Printf("Suppression du mot %s", word)
 		d.RemoveAsync(word)
 
 		w.WriteHeader(http.StatusOK)
@@ -114,7 +123,7 @@ func ApiRemoveWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 func ApiListWordsHandler(d *dictionary.Dictionary) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
-			log.Printf("Bad request method: %s, expected GET. Route: %s", r.Method, r.URL.Path)
+			log.Printf("Mauvaise méthode de requête :%s, GET attendu. Route: %s", r.Method, r.URL.Path)
 			w.WriteHeader(http.StatusBadRequest)
 			fmt.Fprint(w, "La méthode "+r.Method+" n'est pas autorisée pour cette route. Utilisez GET.")
 			return

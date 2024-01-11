@@ -25,6 +25,7 @@ func init() {
 	logger = log.New(logFile, "DICO: ", log.Ldate|log.Ltime|log.Lshortfile)
 }
 
-func LogToFile(message string) {
-	logger.Println(message)
+func LogToFile(context, message string) {
+	logMessage := fmt.Sprintf("[%s] %s", context, message)
+	logger.Println(logMessage)
 }
