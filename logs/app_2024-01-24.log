@@ -1,0 +1,5 @@
+DICO: 2024/01/24 17:29:57 logger.go:36: [runAPIMode] Server started on :8080
+DICO: 2024/01/24 17:40:23 logger.go:36: [/] Requête reçue : GET /
+DICO: 2024/01/24 17:40:32 logger.go:36: [/webfig/] Requête reçue : GET /webfig/
+DICO: 2024/01/24 17:40:41 logger.go:36: [/login] Requête reçue : GET /login
+DICO: 2024/01/24 18:00:33 logger.go:36: [runAPIMode] Server started on :8080

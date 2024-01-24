@@ -9,10 +9,15 @@ import (
 	"strings"
 	"tp2/api_mode"
 	"tp2/console_mode"
+	"tp2/db"
 	"tp2/dictionary"
 )
 
 func main() {
+
+	db.InitializeDB()
+	defer db.CloseDB()
+
 	mode := getModeFromArgs()
 
 	myDictionary := dictionary.New("dictionary.csv")

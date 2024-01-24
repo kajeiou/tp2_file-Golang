@@ -1,0 +1,10 @@
+DICO: 2024/01/18 11:04:38 logger.go:36: [runAPIMode] Server started on :8080
+DICO: 2024/01/18 11:27:40 logger.go:36: [/] Requête reçue : GET /
+DICO: 2024/01/18 11:27:43 logger.go:36: [/] Requête reçue : GET /
+DICO: 2024/01/18 11:27:43 logger.go:36: [/favicon.ico] Requête reçue : GET /favicon.ico
+DICO: 2024/01/18 11:33:21 logger.go:36: [/] Requête reçue : GET /
+DICO: 2024/01/18 11:53:45 logger.go:36: [/goform/set_LimitClient_cfg] Requête reçue : POST /goform/set_LimitClient_cfg
+DICO: 2024/01/18 12:03:31 logger.go:36: [/] Requête reçue : GET /
+DICO: 2024/01/18 12:03:32 logger.go:36: [/favicon.ico] Requête reçue : GET /favicon.ico
+DICO: 2024/01/18 12:03:32 logger.go:36: [/sitemap.xml] Requête reçue : GET /sitemap.xml
+DICO: 2024/01/18 12:03:39 logger.go:36: [/robots.txt] Requête reçue : GET /robots.txt
