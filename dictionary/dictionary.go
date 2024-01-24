@@ -5,11 +5,14 @@ import (
 	"errors"
 	"os"
 	"sync"
+
+	"gorm.io/gorm"
 )
 
 type Word struct {
-	Word       string
-	Definition string
+	gorm.Model
+	Word       string `gorm:"unique;not null"`
+	Definition string `gorm:"not null"`
 }
 
 type Dictionary struct {
