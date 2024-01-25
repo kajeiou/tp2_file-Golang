@@ -11,7 +11,7 @@ import (
 )
 
 type Word struct {
-	gorm.Model
+	gorm.Model `gorm:"soft_delete:false"`
 	Word       string `gorm:"unique;not null"`
 	Definition string `gorm:"not null"`
 }
@@ -66,28 +66,20 @@ func (d *Dictionary) processChannels() {
 	}
 }
 
-// AddAsync ajoute de manière asynchrone un nouveau mot.
-func (d *Dictionary) AddAsync(word string, definition string) {
+func (d *Dictionary) AddAsync(word string, definition string) error {
 	// Mutex pour synchroniser l'accès à d.mu
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
-	// Check if the word already exists in the dictionary
-	if _, err := d.Get(word); err == nil {
-		// Word already exists, signal the end of the operation and return
-		d.responseCh <- struct{}{}
-		return
-	}
-
 	// Utilise la méthode AddWordToDB du repository wordRepo pour ajouter le mot à la base de données
 	if err := d.wordRepo.AddWordToDB(word, definition); err != nil {
-		// En cas d'erreur lors de l'ajout à la base de données, signale la fin de l'opération avec une erreur
-		d.responseCh <- struct{}{}
-		return
+		// En cas d'erreur lors de l'ajout à la base de données, retourne l'erreur
+		return err
 	}
 
-	// Signale la fin de l'opération
+	// Pas d'erreur, signale la fin de l'opération
 	d.responseCh <- struct{}{}
+	return nil
 }
 
 // GetResponseChannel renvoie le canal de réponse du dictionnaire.
@@ -95,60 +87,50 @@ func (d *Dictionary) ResponseChannel() <-chan struct{} {
 	return d.responseCh
 }
 
-func (d *Dictionary) EditAsync(word string, newDefinition string) {
-
+func (d *Dictionary) EditAsync(word string, newDefinition string) error {
 	d.mu.Lock()
-	// Verrouille le mutex pour assurer un accès exclusif aux données du dico.
-	//  Si un autre processus ou une autre goroutine tente d'appeler AddAsync ou toute autre fonction qui modifie les données partagées,
-	// elle devra attendre que le mutex soit déverrouillé avant de pouvoir procéder
 	defer d.mu.Unlock()
 
-	// defer signifie que l'instruction d.mu.Unlock() sera exécutée lorsque AddAsync prend fin
-	// Cela garantit que le mutex est déverrouillé, même si une panique survient (une panique est une situation exceptionnelle qui peut se produire en cas d'erreur grave).
-	// Si le mutex n'était pas déverrouillé en cas de panique, cela pourrait entraîner un verrouillage permanent du mutex, rendant l'ensemble du programme inutilisable.
-
-	for i, w := range d.words {
-		if w.Word == word {
-			d.words[i].Definition = newDefinition
-			break
-		}
+	// Utilise la méthode GetWordFromDB du repository pour obtenir le mot depuis la base de données
+	existingWord, err := d.wordRepo.GetWordFromDB(word)
+	if err != nil {
+		// Gère l'erreur si le mot n'est pas trouvé dans la base de données
+		return err
 	}
 
-	go func() {
-		d.responseCh <- struct{}{} // Signale la fin de l'opération
-	}()
+	existingWord.Definition = newDefinition
+
+	if err := d.wordRepo.UpdateWordInDB(existingWord.Word, existingWord.Definition); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // RemoveAsync supprime de manière asynchrone un mot
-func (d *Dictionary) RemoveAsync(word string) bool {
+func (d *Dictionary) RemoveAsync(word string) error {
 	// Mutex pour synchroniser l'accès à d.mu
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
-	// Utilise la méthode DeleteWordFromDB du repository wordRepo pour supprimer le mot de la base de données
+	if !d.wordExists(word) {
+		return errors.New("Le mot n'existe pas dans le dictionnaire")
+	}
+
 	if err := d.wordRepo.DeleteWordFromDB(word); err != nil {
 		// En cas d'erreur lors de la suppression de la base de données, signale la fin de l'opération avec une erreur
 		d.responseCh <- struct{}{}
-		return false
+		return err
 	}
-
-	// Signale la fin de l'opération
 	d.responseCh <- struct{}{}
-	return true
+	return nil
 }
 
-// Get retourne un mot du dico en fonction du mot fourni.
-func (d *Dictionary) Get(word string) (Word, error) {
-	for _, w := range d.words {
-		if w.Word == word {
-			return w, nil // Retourne le mot si trouvé
-		}
-	}
-
-	return Word{}, errors.New("Le mot " + word + " n'a pas été trouvé dans le dico")
+func (d *Dictionary) wordExists(word string) bool {
+	_, err := d.wordRepo.GetWordFromDB(word)
+	return err == nil
 }
 
-// List retourne la liste complète des mots dans le dico.
 func (d *Dictionary) List() ([]Word, error) {
 	wordsFromDB, err := d.wordRepo.ListWordsFromDB()
 	if err != nil {
@@ -164,7 +146,6 @@ func (d *Dictionary) List() ([]Word, error) {
 	return words, nil
 }
 
-// chargerFichier charge le contenu du fichier CSV dans le dictionnaire
 func (d *Dictionary) chargerFichier() error {
 	file, err := os.Open(d.filename)
 	if err != nil {

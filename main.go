@@ -15,21 +15,13 @@ import (
 
 func main() {
 
-	// Créez une instance du repository GormWordRepository
 	wordRepository := &db.GormWordRepository{}
 
-	// Initialisez la base de données
-	err := wordRepository.InitializeDB()
+	err := wordRepository.InitializeDB("db/database.db")
 	if err != nil {
 		log.Fatal("Failed to initialize database:", err)
 	}
 	defer wordRepository.CloseDB()
-
-	// Ajoutez un mot à la base de données
-	/*err = wordRepository.AddWordToDB("example", "This is an example definition.")
-	if err != nil {
-		log.Fatal("Failed to add word to database:", err)
-	}*/
 
 	mode := getModeFromArgs()
 

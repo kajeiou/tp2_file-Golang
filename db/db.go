@@ -12,9 +12,9 @@ type GormWordRepository struct {
 	DB *gorm.DB
 }
 
-func (g *GormWordRepository) InitializeDB() error {
+func (g *GormWordRepository) InitializeDB(dbPath string) error {
 	var err error
-	g.DB, err = gorm.Open(sqlite.Open("db/database.db"), &gorm.Config{})
+	g.DB, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	if err != nil {
 		return err
 	}
@@ -45,7 +45,7 @@ func (g *GormWordRepository) AddWordToDB(word, definition string) error {
 	return nil
 }
 func (g *GormWordRepository) DeleteWordFromDB(word string) error {
-	result := g.DB.Where("word = ?", word).Delete(&dictionary.Word{})
+	result := g.DB.Where("word = ?", word).Unscoped().Delete(&dictionary.Word{})
 	if result.Error != nil {
 		return result.Error
 	}
@@ -58,8 +58,6 @@ func (g *GormWordRepository) ListWordsFromDB() ([]interfaces.Word, error) {
 	if result.Error != nil {
 		return nil, result.Error
 	}
-
-	// Convertir []dictionary.Word en []interfaces.Word
 	var interfaceWords []interfaces.Word
 	for _, w := range words {
 		interfaceWords = append(interfaceWords, interfaces.Word{
@@ -69,4 +67,34 @@ func (g *GormWordRepository) ListWordsFromDB() ([]interfaces.Word, error) {
 	}
 
 	return interfaceWords, nil
+}
+
+func (g *GormWordRepository) UpdateWordInDB(word, newDefinition string) error {
+	var existingWord dictionary.Word
+	result := g.DB.Where("word = ?", word).First(&existingWord)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	existingWord.Definition = newDefinition
+
+	result = g.DB.Save(&existingWord)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func (g *GormWordRepository) GetWordFromDB(word string) (interfaces.Word, error) {
+	var existingWord dictionary.Word
+	result := g.DB.Where("word = ?", word).First(&existingWord)
+	if result.Error != nil {
+		return interfaces.Word{}, result.Error
+	}
+
+	return interfaces.Word{
+		Word:       existingWord.Word,
+		Definition: existingWord.Definition,
+	}, nil
 }

@@ -38,20 +38,18 @@ func ApiAddWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 			return
 		}
 
-		_, err = d.Get(word.Word)
-		if err == nil {
-			logMessage := fmt.Sprintf("Conflict: Le mot '%s' existe déjà dans le dico. Route: %s", word.Word, r.URL.Path)
-			LogAndRespond(w, r, logMessage, http.StatusConflict)
-			return
-		}
-
 		if err := validateWordAndDefinitionLength(word.Word, word.Definition); err != nil {
 			logMessage := fmt.Sprintf("Erreur de validation : %v", err)
 			LogAndRespond(w, r, logMessage, http.StatusBadRequest)
 			return
 		}
 
-		d.AddAsync(word.Word, word.Definition)
+		if err := d.AddAsync(word.Word, word.Definition); err != nil {
+			logMessage := fmt.Sprintf("Erreur lors de l'ajout du mot : %v", err)
+			LogAndRespond(w, r, logMessage, http.StatusInternalServerError)
+			return
+		}
+
 		LogAndRespond(w, r, fmt.Sprintf("Le mot '%s' avec la définition '%s' a été ajouté.", word.Word, word.Definition), http.StatusCreated)
 	}
 }
@@ -74,26 +72,26 @@ func ApiDefineWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 			return
 		}
 
-		existingWord, err := d.Get(word)
-		if err != nil {
-			LogAndRespond(w, r, fmt.Sprintf("Le mot '%s' n'existe pas dans le dico.", word), http.StatusNotFound)
-			return
-		}
-
 		var newDefinition string
-		err = json.NewDecoder(r.Body).Decode(&newDefinition)
+		err := json.NewDecoder(r.Body).Decode(&newDefinition)
 		if err != nil {
 			LogAndRespond(w, r, "Corps de la demande non valide", http.StatusBadRequest)
 			return
 		}
 
-		if err := validateWordAndDefinitionLength(existingWord.Word, newDefinition); err != nil {
+		if err := validateWordAndDefinitionLength(word, newDefinition); err != nil {
 			logMessage := fmt.Sprintf("Erreur de validation : %v", err)
 			LogAndRespond(w, r, logMessage, http.StatusBadRequest)
 			return
 		}
 
-		d.EditAsync(existingWord.Word, newDefinition)
+		err = d.EditAsync(word, newDefinition)
+		if err != nil {
+			logMessage := fmt.Sprintf("Erreur lors de la mise à jour de la définition dans la base de données : %v", err)
+			LogAndRespond(w, r, logMessage, http.StatusInternalServerError)
+			return
+		}
+
 		LogAndRespond(w, r, fmt.Sprintf("La définition pour le mot '%s' a été mise à jour.", word), http.StatusOK)
 	}
 }
@@ -117,9 +115,10 @@ func ApiRemoveWordHandler(d *dictionary.Dictionary) http.HandlerFunc {
 			return
 		}
 
-		if removed := d.RemoveAsync(word); !removed {
-			logMessage := fmt.Sprintf("Le mot '%s' n'a pas été trouvé dans le dictionnaire", word)
-			LogAndRespond(w, r, logMessage, http.StatusNotFound)
+		err := d.RemoveAsync(word)
+		if err != nil {
+			logMessage := fmt.Sprintf("Erreur lors de la suppression du mot dans la base de données : %v", err)
+			LogAndRespond(w, r, logMessage, http.StatusInternalServerError)
 			return
 		}
 

@@ -6,9 +6,11 @@ type Word struct {
 }
 
 type WordRepository interface {
-	InitializeDB() error
+	InitializeDB(dbPath string) error
 	CloseDB()
 	ListWordsFromDB() ([]Word, error)
 	AddWordToDB(word, definition string) error
 	DeleteWordFromDB(word string) error
+	UpdateWordInDB(word, newDefinition string) error
+	GetWordFromDB(word string) (Word, error)
 }

@@ -12,12 +12,6 @@ func ActionAddAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
 	word, _ := reader.ReadString('\n')
 	word = strings.TrimSpace(word)
 
-	_, err := d.Get(word)
-	if err == nil {
-		fmt.Printf("Le mot '%s' existe déjà dans le dico.\n", word)
-		return
-	}
-
 	fmt.Print("Entrez la nouvelle définition : ")
 	definition, _ := reader.ReadString('\n')
 	definition = strings.TrimSpace(definition)
@@ -32,17 +26,15 @@ func ActionDefineAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
 	word, _ := reader.ReadString('\n')
 	word = strings.TrimSpace(word)
 
-	existingWord, err := d.Get(word)
-	if err != nil {
-		fmt.Printf("Le mot '%s' n'existe pas dans le dico.\n", word)
-		return
-	}
-
 	fmt.Print("Entrez la nouvelle définition : ")
 	newDefinition, _ := reader.ReadString('\n')
 	newDefinition = strings.TrimSpace(newDefinition)
 
-	d.EditAsync(existingWord.Word, newDefinition)
+	err := d.EditAsync(word, newDefinition)
+	if err != nil {
+		fmt.Printf("Erreur lors de la mise à jour du mot '%s' : %v\n", word, err)
+		return
+	}
 
 	fmt.Printf("La définition pour le mot '%s' a été mise à jour.\n", word)
 }
@@ -52,7 +44,12 @@ func ActionRemoveAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
 	word, _ := reader.ReadString('\n')
 	word = strings.TrimSpace(word)
 
-	d.RemoveAsync(word)
+	err := d.RemoveAsync(word)
+	if err != nil {
+		fmt.Printf("Erreur lors de la suppression du mot '%s': %v\n", word, err)
+	} else {
+		fmt.Printf("Le mot '%s' a été supprimé avec succès.\n", word)
+	}
 }
 
 func ActionList(d *dictionary.Dictionary) {

@@ -16,7 +16,7 @@ func authenticateRequest(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 
-	if !isValidToken(token) {
+	if !IsValidToken(token) {
 		LogAndRespond(w, r, "Accès non autorisé. Jeton d'authentification invalide.", http.StatusUnauthorized)
 		return false
 	}
@@ -24,7 +24,7 @@ func authenticateRequest(w http.ResponseWriter, r *http.Request) bool {
 	return true
 }
 
-func isValidToken(tokenString string) bool {
+func IsValidToken(tokenString string) bool {
 	secretKey := []byte(os.Getenv("SECRET_KEY"))
 	if secretKey == nil {
 		log.Println("La variable d'environnement SECRET_KEY n'est pas définie.")

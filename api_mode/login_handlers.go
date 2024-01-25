@@ -5,15 +5,27 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/joho/godotenv"
 )
 
 func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Erreur lors du chargement du fichier .env")
+	if !isTesting() {
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatal("Erreur lors du chargement du fichier .env")
+		}
 	}
+}
+
+func isTesting() bool {
+	for _, arg := range os.Args {
+		if arg == "-test.v=true" {
+			return true
+		}
+	}
+	return false
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
