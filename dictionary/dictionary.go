@@ -95,8 +95,10 @@ func (d *Dictionary) EditAsync(word string, newDefinition string) error {
 	existingWord.Definition = newDefinition
 
 	if err := d.wordRepo.UpdateWordInDB(existingWord.Word, existingWord.Definition); err != nil {
+		d.responseCh <- struct{}{}
 		return err
 	}
+	d.responseCh <- struct{}{}
 
 	return nil
 }
