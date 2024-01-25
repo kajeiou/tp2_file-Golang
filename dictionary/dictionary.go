@@ -71,13 +71,9 @@ func (d *Dictionary) AddAsync(word string, definition string) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
-	// Utilise la méthode AddWordToDB du repository wordRepo pour ajouter le mot à la base de données
 	if err := d.wordRepo.AddWordToDB(word, definition); err != nil {
-		// En cas d'erreur lors de l'ajout à la base de données, retourne l'erreur
 		return err
 	}
-
-	// Pas d'erreur, signale la fin de l'opération
 	d.responseCh <- struct{}{}
 	return nil
 }
@@ -91,10 +87,8 @@ func (d *Dictionary) EditAsync(word string, newDefinition string) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
-	// Utilise la méthode GetWordFromDB du repository pour obtenir le mot depuis la base de données
 	existingWord, err := d.wordRepo.GetWordFromDB(word)
 	if err != nil {
-		// Gère l'erreur si le mot n'est pas trouvé dans la base de données
 		return err
 	}
 
@@ -107,7 +101,6 @@ func (d *Dictionary) EditAsync(word string, newDefinition string) error {
 	return nil
 }
 
-// RemoveAsync supprime de manière asynchrone un mot
 func (d *Dictionary) RemoveAsync(word string) error {
 	// Mutex pour synchroniser l'accès à d.mu
 	d.mu.Lock()
@@ -118,7 +111,6 @@ func (d *Dictionary) RemoveAsync(word string) error {
 	}
 
 	if err := d.wordRepo.DeleteWordFromDB(word); err != nil {
-		// En cas d'erreur lors de la suppression de la base de données, signale la fin de l'opération avec une erreur
 		d.responseCh <- struct{}{}
 		return err
 	}
