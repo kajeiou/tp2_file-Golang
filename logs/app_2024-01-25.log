@@ -1,0 +1,12 @@
+DICO: 2024/01/25 08:05:25 logger.go:36: [runAPIMode] Server started on :8080
+DICO: 2024/01/25 08:14:31 logger.go:36: [/] Requête reçue : GET /
+DICO: 2024/01/25 08:15:12 logger.go:36: [runAPIMode] Server started on :8080
+DICO: 2024/01/25 08:20:53 logger.go:36: [runAPIMode] Server started on :8080
+DICO: 2024/01/25 08:20:58 logger.go:36: [/api/words/add] Requête reçue : POST /api/words/add
+DICO: 2024/01/25 08:21:01 logger.go:36: [/api/words/add] Requête reçue : POST /api/words/add
+DICO: 2024/01/25 08:28:22 logger.go:36: [runAPIMode] Server started on :8080
+DICO: 2024/01/25 08:28:41 logger.go:36: [/api/words/remove/] Requête reçue : DELETE /api/words/remove/
+DICO: 2024/01/25 08:28:54 logger.go:36: [/api/words/remove/example] Requête reçue : DELETE /api/words/remove/example
+DICO: 2024/01/25 08:50:33 logger.go:36: [runAPIMode] Server started on :8080
+DICO: 2024/01/25 08:50:49 logger.go:36: [/api/words/list] Requête reçue : DELETE /api/words/list
+DICO: 2024/01/25 08:50:52 logger.go:36: [ApiListWordsHandler] Requête : GET. Route: /api/words/list

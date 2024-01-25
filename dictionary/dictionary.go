@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"sync"
+	"tp2/interfaces"
 
 	"gorm.io/gorm"
 )
@@ -20,9 +21,10 @@ type Dictionary struct {
 	words      []Word
 	addCh      chan Word // Canal pour ajouter un mot de manière asynchrone
 	editCh     chan Word
-	removeCh   chan string   // Canal pour supprimer un mot de manière asynchrone
-	mu         sync.Mutex    // Mutex pour éviter les problèmes de concurrence
-	responseCh chan struct{} // Canal pour signaler la fin d'une opération asynchrone
+	removeCh   chan string               // Canal pour supprimer un mot de manière asynchrone
+	mu         sync.Mutex                // Mutex pour éviter les problèmes de concurrence
+	responseCh chan struct{}             // Canal pour signaler la fin d'une opération asynchrone
+	wordRepo   interfaces.WordRepository // Ajouter le champ wordRepo à la structure Dictionary
 }
 
 func (w Word) String() string {
@@ -30,7 +32,7 @@ func (w Word) String() string {
 	return w.Word + ": " + w.Definition
 }
 
-func New(filename string) *Dictionary {
+func New(filename string, wordRepository interfaces.WordRepository) *Dictionary {
 	d := &Dictionary{
 		filename:   filename,
 		words:      make([]Word, 0),
@@ -38,6 +40,7 @@ func New(filename string) *Dictionary {
 		editCh:     make(chan Word),
 		removeCh:   make(chan string),
 		responseCh: make(chan struct{}),
+		wordRepo:   wordRepository,
 	}
 	go d.processChannels() // Lance la gestion asynchrone des canaux
 	d.chargerFichier()     // Charge le dico depuis le fichier
@@ -65,32 +68,26 @@ func (d *Dictionary) processChannels() {
 
 // AddAsync ajoute de manière asynchrone un nouveau mot.
 func (d *Dictionary) AddAsync(word string, definition string) {
+	// Mutex pour synchroniser l'accès à d.mu
+	d.mu.Lock()
+	defer d.mu.Unlock()
 
 	// Check if the word already exists in the dictionary
 	if _, err := d.Get(word); err == nil {
 		// Word already exists, signal the end of the operation and return
-		go func() {
-			d.responseCh <- struct{}{} // Signale la fin de l'opération
-		}()
+		d.responseCh <- struct{}{}
 		return
 	}
 
-	d.mu.Lock()
-	// Verrouille le mutex pour assurer un accès exclusif aux données du dico.
-	//  Si un autre processus ou une autre goroutine tente d'appeler AddAsync ou toute autre fonction qui modifie les données partagées,
-	// elle devra attendre que le mutex soit déverrouillé avant de pouvoir procéder
-	defer d.mu.Unlock()
+	// Utilise la méthode AddWordToDB du repository wordRepo pour ajouter le mot à la base de données
+	if err := d.wordRepo.AddWordToDB(word, definition); err != nil {
+		// En cas d'erreur lors de l'ajout à la base de données, signale la fin de l'opération avec une erreur
+		d.responseCh <- struct{}{}
+		return
+	}
 
-	// defer signifie que l'instruction d.mu.Unlock() sera exécutée lorsque AddAsync prend fin
-	// Cela garantit que le mutex est déverrouillé, même si une panique survient (une panique est une situation exceptionnelle qui peut se produire en cas d'erreur grave).
-	// Si le mutex n'était pas déverrouillé en cas de panique, cela pourrait entraîner un verrouillage permanent du mutex, rendant l'ensemble du programme inutilisable.
-
-	newWord := Word{Word: word, Definition: definition}
-	d.words = append(d.words, newWord)
-
-	go func() {
-		d.responseCh <- struct{}{} // Signale la fin de l'opération
-	}()
+	// Signale la fin de l'opération
+	d.responseCh <- struct{}{}
 }
 
 // GetResponseChannel renvoie le canal de réponse du dictionnaire.
@@ -124,33 +121,20 @@ func (d *Dictionary) EditAsync(word string, newDefinition string) {
 
 // RemoveAsync supprime de manière asynchrone un mot
 func (d *Dictionary) RemoveAsync(word string) bool {
-
+	// Mutex pour synchroniser l'accès à d.mu
 	d.mu.Lock()
-	// Verrouille le mutex pour assurer un accès exclusif aux données du dico.
-	//  Si un autre processus ou une autre goroutine tente d'appeler AddAsync ou toute autre fonction qui modifie les données partagées,
-	// elle devra attendre que le mutex soit déverrouillé avant de pouvoir procéder
 	defer d.mu.Unlock()
 
-	// defer signifie que l'instruction d.mu.Unlock() sera exécutée lorsque AddAsync prend fin
-	// Cela garantit que le mutex est déverrouillé, même si une panique survient (une panique est une situation exceptionnelle qui peut se produire en cas d'erreur grave).
-	// Si le mutex n'était pas déverrouillé en cas de panique, cela pourrait entraîner un verrouillage permanent du mutex, rendant l'ensemble du programme inutilisable.
-
-	var updatedWords []Word
-	found := false
-	for _, w := range d.words {
-		if w.Word != word {
-			updatedWords = append(updatedWords, w)
-		} else {
-			found = true
-		}
-	}
-
-	if found {
-		d.words = updatedWords
+	// Utilise la méthode DeleteWordFromDB du repository wordRepo pour supprimer le mot de la base de données
+	if err := d.wordRepo.DeleteWordFromDB(word); err != nil {
+		// En cas d'erreur lors de la suppression de la base de données, signale la fin de l'opération avec une erreur
 		d.responseCh <- struct{}{}
+		return false
 	}
 
-	return found
+	// Signale la fin de l'opération
+	d.responseCh <- struct{}{}
+	return true
 }
 
 // Get retourne un mot du dico en fonction du mot fourni.
@@ -165,12 +149,19 @@ func (d *Dictionary) Get(word string) (Word, error) {
 }
 
 // List retourne la liste complète des mots dans le dico.
-func (d *Dictionary) List() []Word {
-	wordsList := make([]string, 0)
-	for _, w := range d.words {
-		wordsList = append(wordsList, w.Definition)
+func (d *Dictionary) List() ([]Word, error) {
+	wordsFromDB, err := d.wordRepo.ListWordsFromDB()
+	if err != nil {
+		return nil, err
 	}
-	return d.words
+
+	// Convertir []interfaces.Word en []Word
+	words := make([]Word, len(wordsFromDB))
+	for i, w := range wordsFromDB {
+		words[i] = Word{Word: w.Word, Definition: w.Definition}
+	}
+
+	return words, nil
 }
 
 // chargerFichier charge le contenu du fichier CSV dans le dictionnaire

@@ -9,6 +9,7 @@ Bienvenue dans l'API du dictionnaire ! Cette API permet d'ajouter, définir, sup
 ## Endpoints de l'API :
 
 - **/api/login** : Attend une requête HTTP de type POST avec les informations d'identification (username et password) dans le corps de la requête. Si les informations sont valides, elle renvoie un jeton d'authentification.
+{"username": "nabil", "password":"10"}
 
 - **/api/words/list** : Attend une requête HTTP de type GET. Nécessite un jeton d'authentification pour obtenir la liste des mots.
 

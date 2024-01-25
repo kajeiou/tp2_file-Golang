@@ -3,3 +3,34 @@ DICO: 2024/01/24 17:40:23 logger.go:36: [/] Requête reçue : GET /
 DICO: 2024/01/24 17:40:32 logger.go:36: [/webfig/] Requête reçue : GET /webfig/
 DICO: 2024/01/24 17:40:41 logger.go:36: [/login] Requête reçue : GET /login
 DICO: 2024/01/24 18:00:33 logger.go:36: [runAPIMode] Server started on :8080
+DICO: 2024/01/24 18:36:10 logger.go:36: [runAPIMode] Server started on :8080
+DICO: 2024/01/24 19:19:10 logger.go:36: [runAPIMode] Server started on :8080
+DICO: 2024/01/24 19:20:11 logger.go:36: [runAPIMode] Server started on :8080
+DICO: 2024/01/24 19:20:53 logger.go:36: [runAPIMode] Server started on :8080
+DICO: 2024/01/24 19:22:27 logger.go:36: [/api/words/add] Requête reçue : GET /api/words/add
+DICO: 2024/01/24 19:23:00 logger.go:36: [/api/api/login] Requête reçue : POST /api/api/login
+DICO: 2024/01/24 19:23:27 logger.go:36: [/api/api/login] Requête reçue : POST /api/api/login
+DICO: 2024/01/24 19:23:35 logger.go:36: [/api/login] Requête reçue : POST /api/login
+DICO: 2024/01/24 19:24:04 logger.go:36: [/api/login] Requête reçue : POST /api/login
+DICO: 2024/01/24 19:24:29 logger.go:36: [/api/login] Requête reçue : POST /api/login
+DICO: 2024/01/24 19:25:12 logger.go:36: [/api/words/add] Requête reçue : POST /api/words/add
+DICO: 2024/01/24 19:37:50 logger.go:36: [/api/words/add] Requête reçue : POST /api/words/add
+DICO: 2024/01/24 19:38:35 logger.go:36: [/api/words/add] Requête reçue : POST /api/words/add
+DICO: 2024/01/24 19:38:44 logger.go:36: [/api/words/add] Requête reçue : POST /api/words/add
+DICO: 2024/01/24 19:39:36 logger.go:36: [/api/words/add] Requête reçue : POST /api/words/add
+DICO: 2024/01/24 19:39:44 logger.go:36: [/api/words/add] Requête reçue : POST /api/words/add
+DICO: 2024/01/24 19:49:57 logger.go:36: [runAPIMode] Server started on :8080
+DICO: 2024/01/24 19:50:06 logger.go:36: [/api/words/add] Requête reçue : POST /api/words/add
+DICO: 2024/01/24 19:53:04 logger.go:36: [runAPIMode] Server started on :8080
+DICO: 2024/01/24 19:54:48 logger.go:36: [/] Requête reçue : GET /
+DICO: 2024/01/24 19:54:48 logger.go:36: [/favicon.ico] Requête reçue : GET /favicon.ico
+DICO: 2024/01/24 19:55:05 logger.go:36: [runAPIMode] Server started on :8080
+DICO: 2024/01/24 20:05:11 logger.go:36: [runAPIMode] Server started on :8080
+DICO: 2024/01/24 20:27:48 logger.go:36: [/] Requête reçue : GET /
+DICO: 2024/01/24 21:00:17 logger.go:36: [/] Requête reçue : GET /
+DICO: 2024/01/24 21:21:19 logger.go:36: [/] Requête reçue : GET /
+DICO: 2024/01/24 21:21:36 logger.go:36: [/] Requête reçue : GET /
+DICO: 2024/01/24 21:47:55 logger.go:36: [/] Requête reçue : GET /
+DICO: 2024/01/24 21:48:24 logger.go:36: [/] Requête reçue : GET /
+DICO: 2024/01/24 22:10:56 logger.go:36: [/] Requête reçue : GET /
+DICO: 2024/01/25 07:51:03 logger.go:36: [/] Requête reçue : GET /

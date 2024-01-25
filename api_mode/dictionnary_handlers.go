@@ -140,7 +140,12 @@ func ApiListWordsHandler(d *dictionary.Dictionary) http.HandlerFunc {
 			return
 		}
 
-		wordsList := d.List()
+		wordsList, err := d.List()
+		if err != nil {
+			LogAndRespond(w, r, fmt.Sprintf("Erreur lors de la récupération de la liste des mots : %s", err.Error()), http.StatusInternalServerError)
+			return
+		}
+
 		if len(wordsList) == 0 {
 			LogAndRespond(w, r, "Aucun mot dans le dico.", http.StatusOK)
 		} else {

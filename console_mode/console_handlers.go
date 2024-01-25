@@ -56,7 +56,12 @@ func ActionRemoveAsync(d *dictionary.Dictionary, reader *bufio.Reader) {
 }
 
 func ActionList(d *dictionary.Dictionary) {
-	wordsList := d.List()
+	wordsList, err := d.List()
+	if err != nil {
+		fmt.Printf("Erreur lors de la récupération de la liste des mots : %s\n", err.Error())
+		return
+	}
+
 	if len(wordsList) == 0 {
 		fmt.Println("Aucun mot dans le dico.")
 	} else {
